@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Ultimates_Cricket.Models;
 using Ultimates_Cricket.Data;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Ultimates_Cricket.Controllers
 {
@@ -16,20 +16,13 @@ namespace Ultimates_Cricket.Controllers
 
         public PlayersController(Ultimates_CricketContext context)
         {
-            _context = context;    
+            _context = context;
         }
 
         // GET: Players
         public async Task<IActionResult> Index()
         {
             return View(await _context.Players.ToListAsync());
-        }
-
-        // GET: Players
-        public async Task<IActionResult> GetImage(int id)
-        {
-            var players = await _context.Players.SingleOrDefaultAsync(m => m.Id == id);
-            return File(players.Photo, "image/*");
         }
 
         // GET: Players/Details/5
@@ -64,6 +57,16 @@ namespace Ultimates_Cricket.Controllers
         {
             if (ModelState.IsValid)
             {
+                char[] seperators = { '/' };
+                if (
+                    Request.Form.Files.Count > 0 &&
+                    Request.Form.Files[0].ContentType.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[0] == "image" &&
+                    Request.Form.Files[0].Length <= 204800
+                    )
+                {
+                    players.Photo = await ImageUploadToBase64(Request.Form.Files[0]);
+                }
+
                 _context.Add(players);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
@@ -103,7 +106,16 @@ namespace Ultimates_Cricket.Controllers
             {
                 try
                 {
-                    _context.Update(players);
+                    char[] seperators = { '/' };
+                    if (
+                        Request.Form.Files.Count > 0 &&
+                        Request.Form.Files[0].ContentType.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[0] == "image" &&
+                        Request.Form.Files[0].Length <= 204800
+                        )
+                    {
+                        players.Photo = await ImageUploadToBase64(Request.Form.Files[0]);
+                    }
+                        _context.Update(players);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -153,6 +165,15 @@ namespace Ultimates_Cricket.Controllers
         private bool PlayersExists(int id)
         {
             return _context.Players.Any(e => e.Id == id);
+        }
+
+        private async Task<string> ImageUploadToBase64(IFormFile file)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                await Request.Form.Files[0].CopyToAsync(ms);
+                return "data:" + Request.Form.Files[0].ContentType + ";base64," + Convert.ToBase64String(ms.ToArray());
+            }
         }
     }
 }

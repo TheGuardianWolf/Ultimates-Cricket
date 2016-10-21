@@ -23,7 +23,7 @@ namespace Ultimates_Cricket.Data
             .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Game>()
-            .HasOne(p => p.PlayerOfMatch)
+            .HasOne(g => g.PlayerOfMatch)
             .WithMany()
             .OnDelete(DeleteBehavior.SetNull);
         }

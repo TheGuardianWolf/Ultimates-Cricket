@@ -10,14 +10,14 @@ namespace Ultimates_Cricket.Data
     {
         public static void Initialize(Ultimates_CricketContext context)
         {
-            context.Database.EnsureCreated();
+            
 
             // Look for any students.
             if (context.Players.Any())
             {
                 return;   // DB has been seeded
             }
-
+            //context.Database.EnsureCreated();
             var players = new Player[]
             {
                 new Player{Name="Tim Wackrow"},

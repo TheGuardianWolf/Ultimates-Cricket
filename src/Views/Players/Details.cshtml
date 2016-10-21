@@ -1,3 +1,5 @@
+@inject SignInManager<ApplicationUser> SignInManager
+
 @model Ultimates_Cricket.Models.Player
 
 @{
@@ -20,9 +22,7 @@
             @Html.DisplayNameFor(model => model.Photo)
         </dt>
         <dd>
-            @*<img src='@Url.Action("GetImage", "Players", new { id = Model.Photo })' />*@
-            <img src="~/images/person.jpg" />
-            @Html.DisplayFor(model => model.Photo)
+            <img src="@Model.Photo" />
         </dd>
         <dt>
             Batting Average
@@ -39,6 +39,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> @:|
+    }
     <a asp-action="Index">Back to List</a>
 </div>
