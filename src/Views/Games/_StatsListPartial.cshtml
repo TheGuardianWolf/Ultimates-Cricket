@@ -1,3 +1,5 @@
+@inject SignInManager<ApplicationUser> SignInManager
+
 @model IEnumerable<Stat>
 
 <table class="table">
@@ -17,23 +19,26 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Player.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Batting)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Bowling)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Player.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Batting)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Bowling)
+                </td>
+                <td>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a asp-controller="Stats" asp-action="Edit" asp-route-id="@item.Id">Edit</a> @:|
+                        <a asp-controller="Stats" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

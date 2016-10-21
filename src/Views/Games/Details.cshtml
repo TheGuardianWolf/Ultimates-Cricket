@@ -32,7 +32,7 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> @:|
-        <a asp-controller="Stats" asp-action="CreateForGame" asp-route-id="@Model.Id">Add Player Stats</a> @:|
+        <a asp-controller="Stats" asp-action="Create" asp-route-id="@Model.Id">Add Player Stats</a> @:|
     }
     <a asp-action="Index">Back to List</a>
 </div>

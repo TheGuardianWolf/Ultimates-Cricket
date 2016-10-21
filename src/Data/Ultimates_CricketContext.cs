@@ -28,15 +28,15 @@ namespace Ultimates_Cricket.Data
             modelBuilder.Entity<Player>()
             .Ignore(p => p.CatchesTaken);
 
-            modelBuilder.Entity<Game>()
-            .HasOne(g => g.PlayerOfMatch)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<Game>()
+            //.HasOne(g => g.PlayerOfMatch)
+            //.WithMany()
+            //.OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Stat>()
-            .HasOne(s => s.Game)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<Stat>()
+            //.HasOne(s => s.Game)
+            //.WithMany()
+            //.OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Player> Players { get; set; }

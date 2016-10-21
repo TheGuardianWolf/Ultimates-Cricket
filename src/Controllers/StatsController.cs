@@ -20,13 +20,13 @@ namespace Ultimates_Cricket.Controllers
         }
 
         // GET: Stats
-        public async Task<IActionResult> Index()
+        private async Task<IActionResult> Index()
         {
             return View(await _context.Stats.ToListAsync());
         }
 
         // GET: Stats/Details/5
-        public async Task<IActionResult> Details(int? id)
+        private async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -43,31 +43,16 @@ namespace Ultimates_Cricket.Controllers
         }
 
         // GET: Stats/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
-            return View();
-        }
-
-        // POST: Stats/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Batting,Bowling")] Stat stats)
-        {
-            if (ModelState.IsValid)
+            if (id == null)
             {
-                _context.Add(stats);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                ViewBag.GameId = new SelectList(_context.Games.ToList(), "Id", "GameNumber");
             }
-            return View(stats);
-        }
-
-        // GET: Stats/CreateForGame
-        public IActionResult CreateForGame(int? Id)
-        {
-            ViewBag.GameId = Id;
+            else
+            {
+                ViewBag.GameId = id;
+            }
             ViewBag.PlayerId = new SelectList(_context.Players.ToList(), "Id", "Name");
             return View();
         }
@@ -77,11 +62,10 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateForGame([Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
+        public async Task<IActionResult> Create([Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
         {
             if (ModelState.IsValid)
             {
-                //stats.Id = null;
                 _context.Add(stats);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Games", new { Id = stats.GameId });
@@ -98,10 +82,14 @@ namespace Ultimates_Cricket.Controllers
             }
 
             var stats = await _context.Stats.SingleOrDefaultAsync(m => m.Id == id);
+
             if (stats == null)
             {
                 return NotFound();
             }
+
+            ViewBag.GameId = new SelectList(await _context.Games.ToListAsync(), "Id", "GameNumber", stats.GameId);
+
             return View(stats);
         }
 
@@ -110,7 +98,7 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Batting,Bowling")] Stat stats)
+        public async Task<IActionResult> Edit(int id, [Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
         {
             if (id != stats.Id)
             {
@@ -135,7 +123,7 @@ namespace Ultimates_Cricket.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", "Games", new { Id = stats.GameId });
             }
             return View(stats);
         }
@@ -165,7 +153,7 @@ namespace Ultimates_Cricket.Controllers
             var stats = await _context.Stats.SingleOrDefaultAsync(m => m.Id == id);
             _context.Stats.Remove(stats);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", "Games", new { Id = stats.GameId });
         }
 
         private bool StatsExists(int id)
