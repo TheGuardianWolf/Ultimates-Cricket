@@ -34,7 +34,11 @@ namespace Ultimates_Cricket.Controllers
                 return NotFound();
             }
 
-            var game = await _context.Games.SingleOrDefaultAsync(m => m.Id == id);
+            var game = await _context.Games
+                .Include(g => g.Stats)
+                .ThenInclude(s => s.Player)    
+                .SingleOrDefaultAsync();
+
             if (game == null)
             {
                 return NotFound();
@@ -46,15 +50,6 @@ namespace Ultimates_Cricket.Controllers
         // GET: Games/Create
         public IActionResult Create()
         {
-            return View();
-        }
-
-        // GET: Games/CreateStats
-        public IActionResult CreateStats(int id)
-        {
-            ViewBag.GameId = id;
-            ViewBag.PlayerIds = (IEnumerable)_context.Players.Select(col => col.Id);
-            ViewBag.PlayerNames = (IEnumerable) _context.Players.Select(col => col.Name);
             return View();
         }
 

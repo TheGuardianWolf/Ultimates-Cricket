@@ -77,13 +77,14 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateForGame([Bind("Id,Batting,Bowling")] Stat stats)
+        public async Task<IActionResult> CreateForGame([Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
         {
             if (ModelState.IsValid)
             {
+                //stats.Id = null;
                 _context.Add(stats);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Games", stats.GameId);
+                return RedirectToAction("Details", "Games", new { Id = stats.GameId });
             }
             return View(stats);
         }

@@ -20,7 +20,7 @@ namespace Ultimates_Cricket.Data
             modelBuilder.Entity<Player>()
             .HasMany(p => p.GamesWellPlayed)
             .WithOne()
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Player>()
             .Ignore(p => p.BattingAverage);
@@ -31,7 +31,12 @@ namespace Ultimates_Cricket.Data
             modelBuilder.Entity<Game>()
             .HasOne(g => g.PlayerOfMatch)
             .WithMany()
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Stat>()
+            .HasOne(s => s.Game)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Player> Players { get; set; }
