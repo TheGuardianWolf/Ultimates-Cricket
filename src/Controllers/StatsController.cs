@@ -64,6 +64,30 @@ namespace Ultimates_Cricket.Controllers
             return View(stats);
         }
 
+        // GET: Stats/CreateForGame
+        public IActionResult CreateForGame(int? Id)
+        {
+            ViewBag.GameId = Id;
+            ViewBag.PlayerId = new SelectList(_context.Players.ToList(), "Id", "Name");
+            return View();
+        }
+
+        // POST: Stats/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateForGame([Bind("Id,Batting,Bowling")] Stat stats)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(stats);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "Games", stats.GameId);
+            }
+            return View(stats);
+        }
+
         // GET: Stats/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

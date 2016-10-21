@@ -1,7 +1,10 @@
+@inject SignInManager<ApplicationUser> SignInManager
+
 @model Ultimates_Cricket.Models.Game
 
 @{
     ViewData["Title"] = "Details";
+    ViewBag.MainGameId = Model.Id;
 }
 
 <h2>Details</h2>
@@ -17,8 +20,19 @@
             @Html.DisplayFor(model => model.GameNumber)
         </dd>
     </dl>
+
+    @if (Model.Stats != null && Model.Stats.Count > 0)
+    {
+        <hr />
+        <h4>Player Statistics</h4>
+        @Html.Partial("_StatsListPartial", Model.Stats)
+    }
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> @:|
+        <a asp-controller="Stats" asp-action="CreateForGame" asp-route-id="@Model.Id">Add Player Stats</a> @:|
+    }
     <a asp-action="Index">Back to List</a>
 </div>

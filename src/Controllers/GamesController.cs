@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Ultimates_Cricket.Data;
 using Ultimates_Cricket.Models;
+using System.Collections;
 
 namespace Ultimates_Cricket.Controllers
 {
@@ -45,6 +46,15 @@ namespace Ultimates_Cricket.Controllers
         // GET: Games/Create
         public IActionResult Create()
         {
+            return View();
+        }
+
+        // GET: Games/CreateStats
+        public IActionResult CreateStats(int id)
+        {
+            ViewBag.GameId = id;
+            ViewBag.PlayerIds = (IEnumerable)_context.Players.Select(col => col.Id);
+            ViewBag.PlayerNames = (IEnumerable) _context.Players.Select(col => col.Name);
             return View();
         }
 

@@ -10,7 +10,7 @@ namespace Ultimates_Cricket.Data
 {
     public class Ultimates_CricketContext : DbContext
     {
-        public Ultimates_CricketContext (DbContextOptions<Ultimates_CricketContext> options)
+        public Ultimates_CricketContext(DbContextOptions<Ultimates_CricketContext> options)
             : base(options)
         {
         }
@@ -21,6 +21,12 @@ namespace Ultimates_Cricket.Data
             .HasMany(p => p.GamesWellPlayed)
             .WithOne()
             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Player>()
+            .Ignore(p => p.BattingAverage);
+
+            modelBuilder.Entity<Player>()
+            .Ignore(p => p.CatchesTaken);
 
             modelBuilder.Entity<Game>()
             .HasOne(g => g.PlayerOfMatch)

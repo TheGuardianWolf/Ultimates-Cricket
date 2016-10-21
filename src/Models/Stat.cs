@@ -8,6 +8,7 @@ namespace Ultimates_Cricket.Models
 {
     public class Stat
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int GameId { get; set; }
         public int PlayerId { get; set; }
