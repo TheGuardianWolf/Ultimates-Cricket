@@ -8,9 +8,10 @@ using Ultimates_Cricket.Data;
 namespace src.Migrations
 {
     [DbContext(typeof(Ultimates_CricketContext))]
-    partial class Ultimates_CricketContextModelSnapshot : ModelSnapshot
+    [Migration("20161022094958_migration3")]
+    partial class migration3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.1")
@@ -74,8 +75,7 @@ namespace src.Migrations
                 {
                     b.HasOne("Ultimates_Cricket.Models.Player", "PlayerOfMatch")
                         .WithMany("GamesWellPlayed")
-                        .HasForeignKey("PlayerOfMatchId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("PlayerOfMatchId");
                 });
 
             modelBuilder.Entity("Ultimates_Cricket.Models.Stat", b =>

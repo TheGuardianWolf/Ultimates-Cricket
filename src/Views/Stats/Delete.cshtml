@@ -12,6 +12,19 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
+            @Html.DisplayNameFor(model => model.Game.GameNumber)
+            
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Game.GameNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Player.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Player.Name)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Batting)
         </dt>
         <dd>
@@ -28,7 +41,7 @@
     <form asp-action="Delete">
         <div class="form-actions no-color">
             <input type="submit" value="Delete" class="btn btn-default" /> |
-            <a asp-action="Index">Back to List</a>
+            <a asp-controller="Games" asp-action="Details" asp-route-id="@Model.GameId">Back to Game Details</a>
         </div>
     </form>
 </div>

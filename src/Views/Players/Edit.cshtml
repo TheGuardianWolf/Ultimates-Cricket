@@ -22,8 +22,9 @@
         <div class="form-group">
             <label asp-for="Photo" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="Photo" class="form-control" type="file" />
-                <span asp-validation-for="Photo" class="text-danger" /> Max 200 KiB.
+                <input name="Photo" class="form-control" type="file" />
+                Max 200 KiB.
+                <span asp-validation-for="Photo" class="text-danger">@Html.ValidationMessage("Photo")</span>
             </div>
         </div>
         <div class="form-group">

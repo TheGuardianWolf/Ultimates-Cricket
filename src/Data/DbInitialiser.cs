@@ -17,7 +17,7 @@ namespace Ultimates_Cricket.Data
             {
                 return;   // DB has been seeded
             }
-            //context.Database.EnsureCreated();
+            context.Database.EnsureCreated();
             var players = new Player[]
             {
                 new Player{Name="Tim Wackrow"},

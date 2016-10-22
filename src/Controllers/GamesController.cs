@@ -23,7 +23,7 @@ namespace Ultimates_Cricket.Controllers
         // GET: Games
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Games.ToListAsync());
+            return View(await _context.Games.OrderBy(g => g.GameNumber).ToListAsync());
         }
 
         // GET: Games/Details/5
@@ -37,7 +37,8 @@ namespace Ultimates_Cricket.Controllers
             var game = await _context.Games
                 .Include(g => g.Stats)
                 .ThenInclude(s => s.Player)    
-                .SingleOrDefaultAsync();
+                .Include(g => g.PlayerOfMatch)
+                .SingleOrDefaultAsync(s => s.Id == id);
 
             if (game == null)
             {
@@ -50,6 +51,9 @@ namespace Ultimates_Cricket.Controllers
         // GET: Games/Create
         public IActionResult Create()
         {
+            var playersList = _context.Players.ToList();
+            playersList.Insert(0, new Player { Id = -1, Name = "Not Assigned" });
+            ViewBag.PlayerOfMatchId = new SelectList(playersList, "Id", "Name");
             return View();
         }
 
@@ -58,13 +62,22 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,GameNumber")] Game game)
+        public async Task<IActionResult> Create([Bind("Id,GameNumber,PlayerOfMatchId")] Game game)
         {
+            if (game.PlayerOfMatchId == -1)
+            {
+                game.PlayerOfMatchId = null;
+            }
             if (ModelState.IsValid)
             {
-                _context.Add(game);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                if (!GameIsDuplicate(game.GameNumber))
+                {
+                    _context.Add(game);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError("GameNumber", "The game already exists.");
             }
             return View(game);
         }
@@ -75,13 +88,24 @@ namespace Ultimates_Cricket.Controllers
             if (id == null)
             {
                 return NotFound();
-            }
+            } 
 
             var game = await _context.Games.SingleOrDefaultAsync(m => m.Id == id);
+
+            if (game.PlayerOfMatchId == -1)
+            {
+                game.PlayerOfMatchId = null;
+            }
+
+            var playersList = await _context.Players.ToListAsync();
+            playersList.Insert(0, new Player { Id = -1, Name = "Not Assigned" });
+            ViewBag.PlayerOfMatchId = new SelectList(playersList, "Id", "Name");
+
             if (game == null)
             {
                 return NotFound();
             }
+
             return View(game);
         }
 
@@ -90,7 +114,7 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,GameNumber")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,GameNumber,PlayerOfMatchId")] Game game)
         {
             if (id != game.Id)
             {
@@ -99,23 +123,27 @@ namespace Ultimates_Cricket.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                if (!GameIsDuplicate(game.Id, game.GameNumber))
                 {
-                    _context.Update(game);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GameExists(game.Id))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(game);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!GameExists(game.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction("Index");
                 }
-                return RedirectToAction("Index");
+                ModelState.AddModelError("GameNumber", "The game already exists.");
             }
             return View(game);
         }
@@ -151,6 +179,16 @@ namespace Ultimates_Cricket.Controllers
         private bool GameExists(int id)
         {
             return _context.Games.Any(e => e.Id == id);
+        }
+
+        private bool GameIsDuplicate(int gameNumber)
+        {
+            return _context.Games.Any(e => e.GameNumber == gameNumber);
+        }
+
+        private bool GameIsDuplicate(int id, int gameNumber)
+        {
+            return _context.Games.Any(e => (e.Id != id && e.GameNumber == gameNumber));
         }
     }
 }

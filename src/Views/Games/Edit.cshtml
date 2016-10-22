@@ -16,7 +16,14 @@
             <label asp-for="GameNumber" class="col-md-2 control-label"></label>
             <div class="col-md-10">
                 <input asp-for="GameNumber" class="form-control" />
-                <span asp-validation-for="GameNumber" class="text-danger" />
+                <span asp-validation-for="GameNumber" class="text-danger">@Html.ValidationMessage("GameNumber")</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlayerOfMatchId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlayerOfMatchId" class="form-control" asp-items="ViewBag.PlayerOfMatchId"></select>
+                <span asp-validation-for="PlayerOfMatchId" class="text-danger" />
             </div>
         </div>
         <div class="form-group">

@@ -33,11 +33,28 @@ namespace Ultimates_Cricket.Controllers
                 return NotFound();
             }
 
-            var players = await _context.Players.SingleOrDefaultAsync(m => m.Id == id);
+            var players = await _context.Players
+                .Include(p => p.Stats)
+                .SingleOrDefaultAsync(m => m.Id == id);
+
             if (players == null)
             {
                 return NotFound();
             }
+
+            var battingScores = players.Stats
+                .Select(s => s.Batting);
+
+            players.BattingAverage = (battingScores.Count() > 0) ?
+                (float)battingScores.Average() :
+                0f;
+
+            var catchesTaken = players.Stats
+                .Select(s => s.Bowling);
+
+            players.CatchesTaken = (catchesTaken.Count() > 0) ?
+                catchesTaken.Sum() :
+                0;
 
             return View(players);
         }
@@ -58,13 +75,21 @@ namespace Ultimates_Cricket.Controllers
             if (ModelState.IsValid)
             {
                 char[] seperators = { '/' };
-                if (
-                    Request.Form.Files.Count > 0 &&
-                    Request.Form.Files[0].ContentType.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[0] == "image" &&
-                    Request.Form.Files[0].Length <= 204800
-                    )
+                if (Request.Form.Files.Count > 0)
                 {
-                    players.Photo = await ImageUploadToBase64(Request.Form.Files[0]);
+                    if
+                    (
+                        Request.Form.Files[0].ContentType.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[0] == "image" &&
+                        Request.Form.Files[0].Length <= 204800
+                    )
+                    {
+                        players.Photo = await ImageUploadToBase64(Request.Form.Files[0]);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Photo", "Photo is not a valid image type or is over 200 KiB.");
+                        return View(players);
+                    }
                 }
 
                 _context.Add(players);
@@ -104,18 +129,31 @@ namespace Ultimates_Cricket.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    char[] seperators = { '/' };
-                    if (
-                        Request.Form.Files.Count > 0 &&
+                char[] seperators = { '/' };
+                if (Request.Form.Files.Count > 0)
+                {              
+                    if
+                    (
                         Request.Form.Files[0].ContentType.Split(seperators, StringSplitOptions.RemoveEmptyEntries)[0] == "image" &&
                         Request.Form.Files[0].Length <= 204800
-                        )
+                    )
                     {
                         players.Photo = await ImageUploadToBase64(Request.Form.Files[0]);
                     }
-                        _context.Update(players);
+                    else
+                    {
+                        ModelState.AddModelError("Photo", "Photo is not a valid image type or is over 200 KiB.");
+                        return View(players);
+                    }
+                }
+                else
+                {
+                    players.Photo = await _context.Players.Where(p => p.Id == id).Select(p => p.Photo).SingleOrDefaultAsync();
+                }
+
+                try
+                {
+                    _context.Update(players);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -129,6 +167,7 @@ namespace Ultimates_Cricket.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction("Index");
             }
             return View(players);

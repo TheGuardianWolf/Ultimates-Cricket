@@ -17,16 +17,26 @@ namespace Ultimates_Cricket.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Player>()
-            .HasMany(p => p.GamesWellPlayed)
-            .WithOne()
-            .OnDelete(DeleteBehavior.SetNull);
+            //modelBuilder.Entity<Player>()
+            //.HasMany(p => p.GamesWellPlayed)
+            //.WithOne()
+            //.OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Player>()
             .Ignore(p => p.BattingAverage);
 
             modelBuilder.Entity<Player>()
             .Ignore(p => p.CatchesTaken);
+
+            modelBuilder.Entity<Player>()
+            .HasMany(p => p.GamesWellPlayed)
+            .WithOne(g => g.PlayerOfMatch)
+            .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Game>()
+            .HasOne(g => g.PlayerOfMatch)
+            .WithMany(p => p.GamesWellPlayed)
+            .HasForeignKey(g => g.PlayerOfMatchId);
 
             //modelBuilder.Entity<Game>()
             //.HasOne(g => g.PlayerOfMatch)

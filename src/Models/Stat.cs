@@ -11,7 +11,9 @@ namespace Ultimates_Cricket.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public int GameId { get; set; }
+
         public int PlayerId { get; set; }
 
         [Required]

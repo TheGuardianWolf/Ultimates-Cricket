@@ -28,6 +28,7 @@ namespace Ultimates_Cricket.Models
 
         public ICollection<Stat> Stats { get; set; }
 
+        [InverseProperty("PlayerOfMatch")]
         public ICollection<Game> GamesWellPlayed { get; set; }
     }
 }

@@ -45,15 +45,15 @@ namespace Ultimates_Cricket.Controllers
         // GET: Stats/Create
         public IActionResult Create(int? id)
         {
-            if (id == null)
+            if (id.Equals(null))
             {
-                ViewBag.GameId = new SelectList(_context.Games.ToList(), "Id", "GameNumber");
+                ViewBag.GameId = new SelectList(_context.Games, "Id", "GameNumber");
             }
             else
             {
                 ViewBag.GameId = id;
             }
-            ViewBag.PlayerId = new SelectList(_context.Players.ToList(), "Id", "Name");
+            ViewBag.PlayerId = new SelectList(_context.Players, "Id", "Name");
             return View();
         }
 
@@ -62,15 +62,20 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
+        public async Task<IActionResult> Create([Bind("Id,Batting,Bowling,GameId,PlayerId")] Stat stats)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(stats);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Details", "Games", new { Id = stats.GameId });
+                if (!StatsExistsForPlayerThisGame(stats.GameId, stats.PlayerId))
+                {
+                    _context.Add(stats);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Details", "Games", new { Id = stats.GameId });
+                }
+
+                ModelState.AddModelError("PlayerId", "The selected player has already been assigned statistics for this game."); 
             }
-            return View(stats);
+            return Create(stats.Id);
         }
 
         // GET: Stats/Edit/5
@@ -81,14 +86,15 @@ namespace Ultimates_Cricket.Controllers
                 return NotFound();
             }
 
-            var stats = await _context.Stats.SingleOrDefaultAsync(m => m.Id == id);
+            var stats = await _context.Stats
+                .Include(s => s.Player)
+                .Include(s => s.Game)
+                .SingleOrDefaultAsync(m => m.Id == id);
 
             if (stats == null)
             {
                 return NotFound();
             }
-
-            ViewBag.GameId = new SelectList(await _context.Games.ToListAsync(), "Id", "GameNumber", stats.GameId);
 
             return View(stats);
         }
@@ -98,7 +104,7 @@ namespace Ultimates_Cricket.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Batting,Bowling,GameId,PlayerId")] Stat stats)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Batting,Bowling,GameId,PlayerId")] Stat stats)
         {
             if (id != stats.Id)
             {
@@ -107,23 +113,28 @@ namespace Ultimates_Cricket.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                if (!StatsExistsForPlayerThisGame(stats.Id, stats.GameId, stats.PlayerId))
                 {
-                    _context.Update(stats);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!StatsExists(stats.Id))
+                    try
                     {
-                        return NotFound();
+                        _context.Update(stats);
+                        await _context.SaveChangesAsync();
                     }
-                    else
+                    catch (DbUpdateConcurrencyException)
                     {
-                        throw;
+                        if (!StatsExists(stats.Id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
+                    return RedirectToAction("Details", "Games", new { Id = stats.GameId });
                 }
-                return RedirectToAction("Details", "Games", new { Id = stats.GameId });
+
+                ModelState.AddModelError("PlayerId", "The selected player has already been assigned statistics for this game.");
             }
             return View(stats);
         }
@@ -136,7 +147,11 @@ namespace Ultimates_Cricket.Controllers
                 return NotFound();
             }
 
-            var stats = await _context.Stats.SingleOrDefaultAsync(m => m.Id == id);
+            var stats = await _context.Stats
+                .Include(s => s.Player)
+                .Include(s => s.Game)
+                .SingleOrDefaultAsync(m => m.Id == id);
+
             if (stats == null)
             {
                 return NotFound();
@@ -159,6 +174,16 @@ namespace Ultimates_Cricket.Controllers
         private bool StatsExists(int id)
         {
             return _context.Stats.Any(e => e.Id == id);
+        }
+
+        private bool StatsExistsForPlayerThisGame(int gameId, int playerId)
+        {
+            return _context.Stats.Any(e => (e.PlayerId == playerId && e.GameId == gameId));
+        }
+
+        private bool StatsExistsForPlayerThisGame(int id, int gameId, int playerId)
+        {
+            return _context.Stats.Any(e => (e.Id != id && (e.PlayerId == playerId && e.GameId == gameId)));
         }
     }
 }

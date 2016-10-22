@@ -11,15 +11,22 @@
         <h4>Game</h4>
         <hr />
         <h5>
-            Create a game to record scores for players. Scores can be entered
+            Create a game to record statistics for players. Player statistics can be entered
             in the details view after creating a game.
         </h5>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-            <label asp-for="GameNumber" class="col-md-2 control-label">Game Number</label>
+            <label asp-for="GameNumber" class="col-md-2 control-label"></label>
             <div class="col-md-10">
                 <input asp-for="GameNumber" class="form-control" />
-                <span asp-validation-for="GameNumber" class="text-danger" />
+                <span asp-validation-for="GameNumber" class="text-danger">@Html.ValidationMessage("GameNumber")</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlayerOfMatchId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlayerOfMatchId" class="form-control" asp-items="ViewBag.PlayerOfMatchId"></select>
+                <span asp-validation-for="PlayerOfMatchId" class="text-danger" />
             </div>
         </div>
         <div class="form-group">

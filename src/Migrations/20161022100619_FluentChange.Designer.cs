@@ -8,9 +8,10 @@ using Ultimates_Cricket.Data;
 namespace src.Migrations
 {
     [DbContext(typeof(Ultimates_CricketContext))]
-    partial class Ultimates_CricketContextModelSnapshot : ModelSnapshot
+    [Migration("20161022100619_FluentChange")]
+    partial class FluentChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.1")

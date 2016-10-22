@@ -1,38 +1,33 @@
 @model Ultimates_Cricket.Models.Stat
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Edit";
 }
 
-<h2>Create</h2>
+<h2>Edit</h2>
 
-<form asp-action="Create">
+<form asp-action="Edit">
     <div class="form-horizontal">
-        <h4>New Player Statistics</h4>
+        <h4>Stat</h4>
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Game.GameNumber" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input type="number" value="@Model.Game.GameNumber" class="form-control" readonly />
+                <span asp-validation-for="GameId" class="text-danger">@Html.ValidationMessage("GameId")</span>
+            </div>
+            <input type="hidden" name="GameId" value="@Model.GameId" />
+        </div>
         <div class="form-group">
             <label asp-for="Player.Name" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="PlayerId" class="form-control" asp-items="ViewBag.PlayerId"></select>
+                <input type="text" value="@Model.Player.Name" class="form-control" readonly />
                 <span asp-validation-for="PlayerId" class="text-danger">@Html.ValidationMessage("PlayerId")</span>
             </div>
+            <input type="hidden" name="PlayerId" value="@Model.PlayerId" />
         </div>
-        @if (ViewBag.GameId is int)
-        {
-            <input type="hidden" name="GameId" value="@ViewBag.GameId" />
-        }
-        else
-        {
-            <div class="form-group">
-                <label asp-for="Game.GameNumber" class="col-md-2 control-label"></label>
-                <div class="col-md-10">
-                    <select asp-for="GameId" class="form-control" asp-items="ViewBag.GameId"></select>
-                    <span asp-validation-for="GameId" class="text-danger">@Html.ValidationMessage("GameId")</span>
-                </div>
-            </div>
-        }
-
         <div class="form-group">
             <label asp-for="Batting" class="col-md-2 control-label"></label>
             <div class="col-md-10">
@@ -47,24 +42,16 @@
                 <span asp-validation-for="Bowling" class="text-danger" />
             </div>
         </div>
-
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </div>
     </div>
 </form>
 
 <div>
-    @if (ViewBag.GameId is int)
-    {
-        <a asp-controller="Games" asp-action="Details" asp-route-id="@ViewBag.GameId">Back to Game Details</a>
-    }
-    else
-    {
-        <a asp-controller="Games" asp-action="Index">Back to Game List</a>
-    }
+    <a asp-controller="Games" asp-action="Details" asp-route-id="@Model.GameId">Back to Game Details</a>
 </div>
 
 @section Scripts {
